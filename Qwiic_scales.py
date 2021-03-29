@@ -63,7 +63,7 @@ def tare_scales(mux, scales):
 def get_weights(mux, scales):
     for i in scales.keys():
         enable_port(mux, i)
-        print("scale {0} cal factor {1}".format(i, scales[i].calibrationFactor))
+        print("scale {0} cal factor {1}".format(i, scales[i].getCalibrationFactor()))
         input("Press [Enter] to measure a mass. ")
         print("Mass is {0:0.3f} kg".format(scales[i].getWeight()))
         disable_port(mux, i)
