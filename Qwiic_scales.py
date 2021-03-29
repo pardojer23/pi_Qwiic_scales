@@ -7,14 +7,6 @@ import json
 import os
 
 
-class DateTimeEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, datetime):
-            return o.isoformat()
-
-        return json.JSONEncoder.default(self, o)
-
-
 def enable_port(mux, ports):
     mux.enable_channels(ports)
 
@@ -100,7 +92,7 @@ def get_manual_weights(mux, scales, cal, output):
 
 def get_weights(mux, scales, cal, output, weight_data):
     weight_dict = dict()
-    start_time = datetime.now()
+    start_time = datetime.now().isoformat()
     for i in scales.keys():
         enable_port(mux, int(i))
         try:
@@ -111,14 +103,14 @@ def get_weights(mux, scales, cal, output, weight_data):
                   "trying to set a new calibration".format(i))
             tare_scales(mux, scales, output)
 
-        weight = (scales[i].getWeight(), datetime.now())
+        weight = (scales[i].getWeight(), datetime.now().isoformat())
         weight_dict.setdefault(scales[i], weight)
         disable_port(mux, int(i))
 
     with open(os.path.join(output, weight_data), "w+") as outfile:
         weights = {"start_time": start_time,
                    "weights": weight_dict}
-        json.dump(weights, outfile, indent=4, sort_keys=True, cls=DateTimeEncoder)
+        json.dump(weights, outfile, indent=4, sort_keys=True)
 
 
 
