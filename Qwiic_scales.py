@@ -4,7 +4,7 @@ import PyNAU7802
 import smbus2
 import argparse
 def initialize_mux(ports):
-    my_mux = qwiic.QwiicTCA9548a()
+    my_mux = qwiic.QwiicTCA9548A()
     # disable all channels
     my_mux.disable_channels([0, 1, 2, 3, 4, 5, 6, 7])
     # enable ports
