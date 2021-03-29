@@ -23,7 +23,6 @@ def initialize_mux():
     return my_mux
 
 
-
 def create_bus():
     bus = smbus2.SMBus(1)
     return bus
@@ -35,8 +34,8 @@ def initialize_scales(ports):
     bus = create_bus()
     for port in ports:
         enable_port(my_mux, port)
-        scales.setdefault(port, PyNAU7802.NAU7802())
-        if scales[port].begin(bus):
+        scales.setdefault(str(port), PyNAU7802.NAU7802())
+        if scales[str(port)].begin(bus):
             print("Connected to scale {0} \n".format(port))
         else:
             print("Can't find scale on port {0}, exiting ...\n".format(port))
@@ -47,7 +46,8 @@ def initialize_scales(ports):
 def tare_scales(mux, scales, output):
     cal_dict = dict()
     for i in scales.keys():
-        enable_port(mux, i)
+
+        enable_port(mux, int(i))
         print("Calculating the zero offset for scale on port {0}...".format(i))
         scales[i].calculateZeroOffset()
         zero_offset = scales[i].getZeroOffset()
@@ -64,7 +64,7 @@ def tare_scales(mux, scales, output):
         print("The calibration factor for scale at port {0} is:"
               " {1:0.3f}\n".format(i, cal_factor))
         cal_dict.setdefault(i, [zero_offset, cal_factor])
-        disable_port(mux, i)
+        disable_port(mux, int(i))
     if os.path.isdir(output):
         pass
     else:
@@ -76,7 +76,7 @@ def tare_scales(mux, scales, output):
 
 def get_weights(mux, scales, cal, output):
     for i in scales.keys():
-        enable_port(mux, i)
+        enable_port(mux, int(i))
         try:
             scales[i].setZeroOffset(cal[i][0])
             scales[i].setCalibrationFactor(cal[i][1])
@@ -87,7 +87,7 @@ def get_weights(mux, scales, cal, output):
         print("scale {0} cal factor {1}".format(i, scales[i].getCalibrationFactor()))
         input("Press [Enter] to measure a mass. ")
         print("Mass is {0:0.3f} kg".format(scales[i].getWeight()))
-        disable_port(mux, i)
+        disable_port(mux, int(i))
 
 
 def read_cal_file(file_path):
