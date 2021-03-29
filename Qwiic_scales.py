@@ -74,7 +74,7 @@ def tare_scales(mux, scales, output):
     return cal_dict
 
 
-def get_weights(mux, scales, cal):
+def get_weights(mux, scales, cal, output):
     for i in scales.keys():
         enable_port(mux, i)
         try:
@@ -114,7 +114,7 @@ def main():
     else:
         cal = tare_scales(my_mux, scales, output)
 
-    get_weights(my_mux, scales, cal)
+    get_weights(my_mux, scales, cal, output)
 
 
 if __name__ == "__main__":
