@@ -110,6 +110,7 @@ def get_weights(mux, scales, cal, output, weight_data):
     with open(os.path.join(output, weight_data), "w+") as outfile:
         weights = {"start_time": start_time,
                    "weights": weight_dict}
+        print(weights)
         json.dump(weights, outfile, indent=4, sort_keys=True)
 
 
