@@ -104,7 +104,7 @@ def main():
     parser.add_argument("-o", "--output", help="path to output directory", default=".")
     args = parser.parse_args()
     ports = [int(i) for i in args.ports.strip().split(",")]
-    cal_file = args.cal()
+    cal_file = args.cal
     output = args.output
 
     my_mux = initialize_mux()
