@@ -98,7 +98,7 @@ def write_weight_json(weights, weight_data, output):
         my_weights = old_weights.update(weights)
     else:
         my_weights = weights
-    with open(os.path.join(output, weight_data), "w+") as outfile:
+    with open(os.path.join(output, weight_data), "w") as outfile:
         json.dump(my_weights, outfile, indent=4, sort_keys=True)
 
 
