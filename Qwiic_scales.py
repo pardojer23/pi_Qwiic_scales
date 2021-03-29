@@ -107,7 +107,7 @@ def get_weights(mux, scales, cal, output, weight_data):
         weight_dict.setdefault(scales[i], weight)
         disable_port(mux, int(i))
 
-     with open(os.path.join(output, weight_data), "w+") as outfile:
+    with open(os.path.join(output, weight_data), "w+") as outfile:
         weights = {"start_time": start_time,
                    "weights": weight_dict}
         json.dump(weights, outfile, indent=4, sort_keys=True)
