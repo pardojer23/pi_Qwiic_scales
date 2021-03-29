@@ -70,7 +70,7 @@ def get_weights(mux, scales, cal):
     for i in scales.keys():
         enable_port(mux, i)
         scales[i].setZeroOffset([cal[i][0]])
-        print(scales[i].getZeroOffset)
+        print(scales[i].getZeroOffset())
         scales[i].setCalibrationFactor(cal[i][1])
         print("scale {0} cal factor {1}".format(i, scales[i].getCalibrationFactor()))
         input("Press [Enter] to measure a mass. ")
