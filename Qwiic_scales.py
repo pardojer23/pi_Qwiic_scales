@@ -7,6 +7,14 @@ import json
 import os
 
 
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, datetime):
+            return o.isoformat()
+
+        return json.JSONEncoder.default(self, o)
+
+
 def enable_port(mux, ports):
     mux.enable_channels(ports)
 
@@ -110,7 +118,7 @@ def get_weights(mux, scales, cal, output, weight_data):
     with open(os.path.join(output, weight_data), "w+") as outfile:
         weights = {"start_time": start_time,
                    "weights": weight_dict}
-        json.dump(weights, outfile, indent=4, sort_keys=True)
+        json.dump(weights, outfile, indent=4, sort_keys=True, cls=DateTimeEncoder)
 
 
 
