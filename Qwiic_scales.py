@@ -96,7 +96,6 @@ def write_weight_json(weights, weight_data, output):
         with open(os.path.join(output, weight_data), "r") as infile:
             my_weights = json.load(infile)
             my_weights.update(weights)
-        print(my_weights)
 
     else:
         my_weights = weights
