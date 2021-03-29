@@ -118,10 +118,10 @@ def get_weights(mux, scales, cal, output, weight_data):
         weight = (scales[i].getWeight(), datetime.now().isoformat())
         weight_dict.setdefault(i, weight)
         disable_port(mux, int(i))
-        weights = {"start_time": start_time,
-                   "weights": weight_dict}
-        print(weights)
-        write_weight_json(weights, weight_data, output)
+    weights = {"start_time": start_time,
+               "weights": weight_dict}
+    print(weights)
+    write_weight_json(weights, weight_data, output)
 
 
 def read_cal_file(file_path):
