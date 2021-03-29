@@ -3,6 +3,8 @@ import time
 import PyNAU7802
 import smbus2
 import argparse
+import json
+import os
 
 
 def enable_port(mux, ports):
@@ -42,7 +44,7 @@ def initialize_scales(ports):
     return scales
 
 
-def tare_scales(mux, scales):
+def tare_scales(mux, scales, output):
     cal_dict = dict()
     for i in scales.keys():
         enable_port(mux, i)
@@ -63,30 +65,54 @@ def tare_scales(mux, scales):
               " {1:0.3f}\n".format(i, cal_factor))
         cal_dict.setdefault(i, [zero_offset, cal_factor])
         disable_port(mux, i)
+    if os.path.isdir(output):
+        pass
+    else:
+        os.mkdir(output)
+    with open(os.path.join(output,"cal_file.json"), "w+") as cal_file:
+        json.dump(cal_dict, cal_file, indent=4, sort_keys=True)
     return cal_dict
 
 
 def get_weights(mux, scales, cal):
     for i in scales.keys():
         enable_port(mux, i)
-        scales[i].setZeroOffset(cal[i][0])
-        print(scales[i].getZeroOffset())
-        scales[i].setCalibrationFactor(cal[i][1])
+        try:
+            scales[i].setZeroOffset(cal[i][0])
+            scales[i].setCalibrationFactor(cal[i][1])
+        except KeyError:
+            print("No calibration found for scale at port {0}, "
+                  "trying to set a new calibration".format(i))
+            tare_scales(mux, scales, output)
         print("scale {0} cal factor {1}".format(i, scales[i].getCalibrationFactor()))
         input("Press [Enter] to measure a mass. ")
         print("Mass is {0:0.3f} kg".format(scales[i].getWeight()))
         disable_port(mux, i)
 
 
+def read_cal_file(file_path):
+    with open(file_path, "r") as cal_file:
+        cal_dict = json.load(cal_file)
+    return cal_dict
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--ports",
                         help="list of scale ports on mux (0-7_ separated by commas.")
+    parser.add_argument("-c", "--cal", help="path to calibration file", default=None)
+    parser.add_argument("-o", "--output", help="path to output directory", default=".")
     args = parser.parse_args()
     ports = [int(i) for i in args.ports.strip().split(",")]
+    cal_file = args.cal()
+    output = args.output
+
     my_mux = initialize_mux()
     scales = initialize_scales(ports)
-    cal = tare_scales(my_mux, scales)
+    if cal_file is not None:
+        cal = read_cal_file(cal_file)
+    else:
+        cal = tare_scales(my_mux, scales, output)
 
     get_weights(my_mux, scales, cal)
 
