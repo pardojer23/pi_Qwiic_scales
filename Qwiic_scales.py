@@ -118,9 +118,9 @@ def get_weights(mux, scales, cal, output, weight_data):
                   "trying to set a new calibration".format(i))
             tare_scales(mux, scales, output)
 
-        weight = [scales[i].getWeight() for j in range(10)]
+        weight = [scales[i].getWeight() for j in range(4)]
         weight_avg = sum(weight) / len(weight)
-        my_weight = (round(weight_avg, 3), datetime.now().isoformat())
+        my_weight = (round(weight_avg, 2), datetime.now().isoformat())
         weight_dict.setdefault(i, my_weight)
         disable_port(mux, int(i))
 
