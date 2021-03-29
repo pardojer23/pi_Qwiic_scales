@@ -44,13 +44,12 @@ def initialize_scales(ports):
 
 def tare_scales(mux, scales):
     for i in scales.keys():
-        print(i)
         enable_port(mux, i)
-        print("Calculating the zero offset for scale on port {0}...").format(int(i))
+        print("Calculating the zero offset for scale on port {0}...".format(i))
         scales[i].calculateZeroOffset()
         print("The zero offset for scale at port {0} is:"
-              " {1}\n".format(int(i), scales[i].getZeroOffset()))
-        print("Put a known mass on the scale at port {0}.".format(int(i)))
+              " {1}\n".format(i, scales[i].getZeroOffset()))
+        print("Put a known mass on the scale at port {0}.".format(i))
         cal = float(input("Mass in kg? "))
 
         # Calculate the calibration factor
