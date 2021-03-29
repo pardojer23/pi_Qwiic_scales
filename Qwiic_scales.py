@@ -1,5 +1,5 @@
 import qwiic
-import time
+from datetime import datetime
 import PyNAU7802
 import smbus2
 import argparse
@@ -74,7 +74,7 @@ def tare_scales(mux, scales, output):
     return cal_dict
 
 
-def get_weights(mux, scales, cal, output):
+def get_manual_weights(mux, scales, cal, output):
     for i in scales.keys():
         enable_port(mux, int(i))
         try:
@@ -84,10 +84,35 @@ def get_weights(mux, scales, cal, output):
             print("No calibration found for scale at port {0}, "
                   "trying to set a new calibration".format(i))
             tare_scales(mux, scales, output)
-        print("scale {0} cal factor {1}".format(i, scales[i].getCalibrationFactor()))
+
         input("Press [Enter] to measure a mass. ")
         print("Mass is {0:0.3f} kg".format(scales[i].getWeight()))
         disable_port(mux, int(i))
+
+
+def get_weights(mux, scales, cal, output, weight_data):
+    weight_dict = dict()
+    start_time = datetime.now()
+    for i in scales.keys():
+        enable_port(mux, int(i))
+        try:
+            scales[i].setZeroOffset(cal[i][0])
+            scales[i].setCalibrationFactor(cal[i][1])
+        except KeyError:
+            print("No calibration found for scale at port {0}, "
+                  "trying to set a new calibration".format(i))
+            tare_scales(mux, scales, output)
+
+        weight = (scales[i].getWeight(), datetime.now())
+        weight_dict.setdefault(scales[i], weight)
+        disable_port(mux, int(i))
+
+     with open(os.path.join(output, weight_data), "w+") as outfile:
+        weights = {"start_time": start_time,
+                   "weights": weight_dict}
+        json.dump(weights, outfile, indent=4, sort_keys=True)
+
+
 
 
 def read_cal_file(file_path):
@@ -102,10 +127,12 @@ def main():
                         help="list of scale ports on mux (0-7_ separated by commas.")
     parser.add_argument("-c", "--cal", help="path to calibration file", default=None)
     parser.add_argument("-o", "--output", help="path to output directory", default=".")
+    parser.add_argument("-w", "--weight_data", help="weight data json file", default="weight_data.json")
     args = parser.parse_args()
     ports = [int(i) for i in args.ports.strip().split(",")]
     cal_file = args.cal
     output = args.output
+    weight_data = args.weight_data
 
     my_mux = initialize_mux()
     scales = initialize_scales(ports)
@@ -114,7 +141,7 @@ def main():
     else:
         cal = tare_scales(my_mux, scales, output)
 
-    get_weights(my_mux, scales, cal, output)
+    get_weights(my_mux, scales, cal, output, weight_data)
 
 
 if __name__ == "__main__":
