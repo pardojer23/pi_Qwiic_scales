@@ -104,7 +104,7 @@ def get_weights(mux, scales, cal, output, weight_data):
             tare_scales(mux, scales, output)
 
         weight = (scales[i].getWeight(), datetime.now().isoformat())
-        weight_dict.setdefault(scales[i], weight)
+        weight_dict.setdefault(i, weight)
         disable_port(mux, int(i))
 
     with open(os.path.join(output, weight_data), "w+") as outfile:
