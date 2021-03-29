@@ -63,6 +63,7 @@ def tare_scales(mux, scales):
 def get_weights(mux, scales):
     for i in scales.keys():
         enable_port(mux, i)
+        input("Press [Enter] to measure a mass. ")
         print("Mass is {0:0.3f} kg".format(scales[i].getWeight()))
         disable_port(mux, i)
 
@@ -76,7 +77,7 @@ def main():
     my_mux = initialize_mux()
     scales = initialize_scales(ports)
     tare_scales(my_mux, scales)
-    input("Press [Enter] to measure a mass. ")
+
     get_weights(my_mux, scales)
 
 
