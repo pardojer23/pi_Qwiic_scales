@@ -43,26 +43,34 @@ def initialize_scales(ports):
 
 
 def tare_scales(mux, scales):
+    cal_dict = dict()
     for i in scales.keys():
         enable_port(mux, i)
         print("Calculating the zero offset for scale on port {0}...".format(i))
         scales[i].calculateZeroOffset()
+        zero_offset = scales[i].getZeroOffset()
         print("The zero offset for scale at port {0} is:"
-              " {1}\n".format(i, scales[i].getZeroOffset()))
+              " {1}\n".format(i, zero_offset))
+
         print("Put a known mass on the scale at port {0}.".format(i))
         cal = float(input("Mass in kg? "))
 
         # Calculate the calibration factor
         print("Calculating the calibration factor...")
         scales[i].calculateCalibrationFactor(cal)
+        cal_factor = scales[i].getCalibrationFactor()
         print("The calibration factor for scale at port {0} is:"
-              " {0:0.3f}\n".format(i, scales[i].getCalibrationFactor()))
+              " {0:0.3f}\n".format(i, cal_factor))
+        cal_dict.setdefault(i, [zero_offset, cal_factor])
         disable_port(mux, i)
+    return cal_dict
 
 
-def get_weights(mux, scales):
+def get_weights(mux, scales, cal):
     for i in scales.keys():
         enable_port(mux, i)
+        scales[i].setZeroOffset([cal[i][0]])
+        scales[i].setCalibrationFactor(cal[i][1])
         print("scale {0} cal factor {1}".format(i, scales[i].getCalibrationFactor()))
         input("Press [Enter] to measure a mass. ")
         print("Mass is {0:0.3f} kg".format(scales[i].getWeight()))
@@ -77,9 +85,9 @@ def main():
     ports = [int(i) for i in args.ports.strip().split(",")]
     my_mux = initialize_mux()
     scales = initialize_scales(ports)
-    tare_scales(my_mux, scales)
+    cal = tare_scales(my_mux, scales)
 
-    get_weights(my_mux, scales)
+    get_weights(my_mux, scales, cal)
 
 
 if __name__ == "__main__":
