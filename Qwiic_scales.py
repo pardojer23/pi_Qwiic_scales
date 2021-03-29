@@ -95,7 +95,7 @@ def write_weight_json(weights, weight_data, output):
         print("found existing data file, appending new data")
         with open(os.path.join(output, weight_data), "r") as infile:
             old_weights = json.load(infile)
-        my_weights = old_weights.append(weights)
+        my_weights = old_weights.update(weights)
     else:
         my_weights = weights
     with open(os.path.join(output, weight_data), "w+") as outfile:
