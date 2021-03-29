@@ -60,7 +60,7 @@ def tare_scales(mux, scales):
         scales[i].calculateCalibrationFactor(cal)
         cal_factor = scales[i].getCalibrationFactor()
         print("The calibration factor for scale at port {0} is:"
-              " {0:0.3f}\n".format(i, cal_factor))
+              " {1:0.3f}\n".format(i, cal_factor))
         cal_dict.setdefault(i, [zero_offset, cal_factor])
         disable_port(mux, i)
     return cal_dict
