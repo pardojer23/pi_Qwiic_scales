@@ -76,6 +76,7 @@ def main():
     my_mux = initialize_mux()
     scales = initialize_scales(ports)
     tare_scales(my_mux, scales)
+    input("Press [Enter] to measure a mass. ")
     get_weights(my_mux, scales)
 
 
