@@ -90,6 +90,18 @@ def get_manual_weights(mux, scales, cal, output):
         disable_port(mux, int(i))
 
 
+def write_weight_json(weights, weight_data, output):
+    if os.path.exists(os.path.join(output, weight_data)):
+        print("found existing data file, appending new data")
+        with open(os.path.join(output, weight_data), "r") as infile:
+            old_weights = json.load(infile)
+        my_weights = old_weights.append(weights)
+    else:
+        my_weights = weights
+    with open(os.path.join(output, weight_data), "w+") as outfile:
+        json.dump(my_weights, outfile, indent=4, sort_keys=True)
+
+
 def get_weights(mux, scales, cal, output, weight_data):
     weight_dict = dict()
     start_time = datetime.now().isoformat()
@@ -106,14 +118,10 @@ def get_weights(mux, scales, cal, output, weight_data):
         weight = (scales[i].getWeight(), datetime.now().isoformat())
         weight_dict.setdefault(i, weight)
         disable_port(mux, int(i))
-
-    with open(os.path.join(output, weight_data), "w+") as outfile:
         weights = {"start_time": start_time,
                    "weights": weight_dict}
         print(weights)
-        json.dump(weights, outfile, indent=4, sort_keys=True)
-
-
+        write_weight_json(weights, weight_data, output)
 
 
 def read_cal_file(file_path):
