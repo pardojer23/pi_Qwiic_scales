@@ -44,6 +44,7 @@ def initialize_scales(ports):
 
 def tare_scales(mux, scales):
     for i in scales.keys():
+        print(i)
         enable_port(mux, i)
         print("Calculating the zero offset for scale on port {0}...").format(i)
         scales[i].calculateZeroOffset()
