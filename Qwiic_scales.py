@@ -240,10 +240,12 @@ def main():
     if cal_file is not None:
         print("reading calibration")
         cal = read_cal_file(cal_file)
+        print("read calibration...")
     else:
         cal = tare_scales(my_mux, scales, output)
 
     if manual is True:
+        print("manual mode")
         get_manual_weights(my_mux, scales, cal, output)
     else:
         print("getting weight")
