@@ -238,13 +238,15 @@ def main():
     my_mux = initialize_mux()
     scales = initialize_scales(ports)
     if cal_file is not None:
+        print("reading calibration")
         cal = read_cal_file(cal_file)
     else:
         cal = tare_scales(my_mux, scales, output)
-        
+
     if manual is True:
         get_manual_weights(my_mux, scales, cal, output)
     else:
+        print("getting weight")
         get_weights(my_mux, scales, cal, output, weight_data)
 
 
