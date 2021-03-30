@@ -64,7 +64,7 @@ def initialize_scales(ports):
         if scales[str(port)].begin(bus):
             print("Connected to scale {0} \n".format(port))
         else:
-            print("Can't find scale on port {0}, exiting ...\n".format(port))
+            print("Can't find scale on port {0}, skipping...\n".format(port))
         disable_port(my_mux, port)
     return scales
 
