@@ -238,7 +238,7 @@ def main():
     my_mux = initialize_mux()
     scales = initialize_scales(ports)
     if cal_file is not None:
-        print("reading calibration")
+        print("{0} reading calibration".format(datetime.now()))
         cal = read_cal_file(cal_file)
         print("read calibration...")
     else:
