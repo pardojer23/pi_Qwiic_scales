@@ -228,15 +228,22 @@ def main():
     parser.add_argument("-o", "--output", help="path to output directory", default=".")
     parser.add_argument("-w", "--weight_data", help="weight data json file", default="weight_data.json")
     parser.add_argument("-m", "--manual", help="get manual weight readings", default=False, type=bool)
+    parser.add_argument("-nc", "--new_cal", help="recalibrate the scales", default=False, type=bool)
     args = parser.parse_args()
     ports = [int(i) for i in args.ports.strip().split(",")]
     cal_file = args.cal
     output = args.output
     weight_data = args.weight_data
     manual = args.manual
+    new_cal = args.new_cal
+    print("{0}:########Starting Qwiic scales#########\n".format(datetime.now()))
 
     my_mux = initialize_mux()
     scales = initialize_scales(ports)
+    if new_cal is True:
+        print("{0}: Setting new scale calibration")
+        tare_scales(my_mux, scales, output)
+        exit(0)
     if cal_file is not None:
         print("{0} reading calibration".format(datetime.now()))
         cal = read_cal_file(cal_file)
@@ -245,10 +252,9 @@ def main():
         cal = tare_scales(my_mux, scales, output)
 
     if manual is True:
-        print("manual mode")
         get_manual_weights(my_mux, scales, cal, output)
     else:
-        print("getting weight")
+        print("{0}: Reading weights...".format(datetime.now()))
         get_weights(my_mux, scales, cal, output, weight_data)
 
 
