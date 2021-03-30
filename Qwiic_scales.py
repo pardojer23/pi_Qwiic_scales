@@ -102,8 +102,12 @@ def tare_scales(mux, scales, output):
         pass
     else:
         os.mkdir(output)
-    with open(os.path.join(output,"cal_file.json"), "w+") as cal_file:
+    with open(os.path.join(output, "cal_file.json"), "w+") as cal_file:
         json.dump(cal_dict, cal_file, indent=4, sort_keys=True)
+    input("Press [Enter] to complete calibration")
+    print("{0}: New calibration saved {1}".format(datetime.now(),
+                                                  os.path.join(output, "cal_file.json")))
+
     return cal_dict
 
 
@@ -169,7 +173,7 @@ def write_weight_json(weights, weight_data, output):
     else:
         my_weights = weights
 
-    with open(os.path.join(output, weight_data), "w" ) as outfile:
+    with open(os.path.join(output, weight_data), "w") as outfile:
         json.dump(my_weights, outfile, indent=4, sort_keys=True)
 
 
@@ -237,6 +241,7 @@ def main():
         cal = read_cal_file(cal_file)
     else:
         cal = tare_scales(my_mux, scales, output)
+        
     if manual is True:
         get_manual_weights(my_mux, scales, cal, output)
     else:
