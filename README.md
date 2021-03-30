@@ -33,6 +33,9 @@ optional arguments:
                         weight data json file
                         
 To run creating a new calibration:
+
 `python3 Qwiic_scales.py --ports 0,1,2,3,4,5,6,7  --output /home/pi/output_directory --weight_data weight_data.json`
+
 To run with an existing calibration:
+
 `python3 Qwiic_scales.py --ports 0,1,2,3,4,5,6,7 --cal /home/pi/calibration_file.json --output /home/pi/output_directory --weight_data weight_data.json`
