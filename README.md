@@ -3,20 +3,20 @@ The purpose of this package is to
 operate a network of Sparkfun Qwiic enabled scales from a Raspberry Pi.
 
 
-##Hardware Requirements
+Hardware Requirements
 1. Raspberry pi (tested on model 3b+ running Raspbian GNU/Linux 10 (buster))
 2. SparkFun Qwiic HAT for Raspberry Pi https://www.sparkfun.com/products/14459
 3. SparkFun Qwiic Mux Breakout - 8 Channel (TCA9548A) https://www.sparkfun.com/products/16784
 4. SparkFun Qwiic Scale - NAU7802 https://www.sparkfun.com/products/15242
 5. Load cell (tested with Load Cell - 5kg, Straight Bar (TAL220B) https://www.sparkfun.com/products/14729)
 
-##Install
+Install
 To install clone the github repository onto your Raspberry pi, 
 `git clone https://github.com/pardojer23/pi_Qwiic_scales.git` 
 then from the `pi_Qwiic_scales` directory run the following:
 `sudo python3 setup.py install`
 
-##Run
+Run
 usage: Qwiic_scales.py [-h] [-p PORTS] [-c CAL] [-o OUTPUT] [-w WEIGHT_DATA]
 
 optional arguments:
