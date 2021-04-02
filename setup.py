@@ -10,4 +10,5 @@ setup(name='pi_Qwiic_scales',
       install_requires=[
                 'PyNAU7802',
                 'smbus2',
-                'sparkfun-qwiic'])
+                'sparkfun-qwiic',
+                'PyDrive2'])
