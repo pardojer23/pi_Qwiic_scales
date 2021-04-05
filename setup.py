@@ -11,4 +11,4 @@ setup(name='pi_Qwiic_scales',
                 'PyNAU7802',
                 'smbus2',
                 'sparkfun-qwiic',
-                'PyDrive2'])
+                'PyDrive'])
