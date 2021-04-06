@@ -38,11 +38,13 @@ def upload_file(file, folder, credential):
         if folder['title'] == folder_name:
             file_list = drive.ListFile({'q': "'root' in parents and trashed=false"}).GetList()
             file_exists = False
-            for file1 in file_list:
-                if file1['title'] == file_name:
+            for drive_file in file_list:
+                if drive_file['title'] == file_name:
                     file_exists = True
                     print("{0}: Updating existing file {1}".format(datetime.now(), file_name))
-                    file1['title'] = file_name
+                    drive_file['title'] = file_name
+                    file1 = drive.CreateFile({'id': drive_file['id'],
+                                              'parents': [{'id': folder['id']}]})
                     file1.SetContentFile(file)
                     file1.Upload()
             if file_exists is False:
