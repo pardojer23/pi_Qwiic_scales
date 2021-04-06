@@ -2,6 +2,7 @@ import argparse
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 from oauth2client.service_account import ServiceAccountCredentials
+from datetime import datetime
 
 
 def connect_to_drive(credential):
@@ -33,9 +34,15 @@ def upload_file(file, folder, credential):
             'q': "title='" + folder_name + "' ""and mimeType='application/vnd.google-apps.folder' and trashed=false"}).GetList()
     for folder in folders:
         if folder['title'] == folder_name:
-            file2 = drive.CreateFile({'parents': [{'id': folder['id']}]})
-            file2.SetContentFile(file)
-            file2.Upload()
+            file_list = drive.ListFile({'q': "'root' in parents and trashed=false"}).GetList()
+            for file1 in file_list:
+                if file1['title'] == file:
+                    file1.SetContentFile(file)
+                    file1.Upload()
+            else:
+                file2 = drive.CreateFile({'parents': [{'id': folder['id']}]})
+                file2.SetContentFile(file)
+                file2.Upload()
 
 
 def main():
@@ -52,6 +59,7 @@ def main():
     credential = args.credential
     folder = args.folder
     source = args.source
+    print("{0}: Uploading {1} to Google Drive folder: {2}".format(datetime.now(), source, folder))
     upload_file(source, folder, credential)
 
 
