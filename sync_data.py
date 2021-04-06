@@ -36,7 +36,7 @@ def upload_file(file, folder, credential):
             'q': "title='" + folder_name + "' ""and mimeType='application/vnd.google-apps.folder' and trashed=false"}).GetList()
     for folder in folders:
         if folder['title'] == folder_name:
-            file_list = drive.ListFile({'q': "'root' in parents and trashed=false"}).GetList()
+            file_list = drive.ListFile({'q': "'"+folder['id']+"' in parents and trashed=false"}).GetList()
             file_exists = False
             for drive_file in file_list:
                 if drive_file['title'] == file_name:
