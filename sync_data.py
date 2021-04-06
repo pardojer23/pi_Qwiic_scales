@@ -41,10 +41,12 @@ def upload_file(file, folder, credential):
             for file1 in file_list:
                 if file1['title'] == file_name:
                     file_exists = True
+                    print("{0}: Updating existing file {1}".format(datetime.now(), file_name))
                     file1['title'] = file_name
                     file1.SetContentFile(file)
                     file1.Upload()
             if file_exists is False:
+                print("{0}: Creating new file {1}".format(datetime.now(), file_name))
                 file2 = drive.CreateFile({'parents': [{'id': folder['id']}]})
                 file2['title'] = file_name
                 file2.SetContentFile(file)
