@@ -125,6 +125,10 @@ def set_calibration(mux, scales, cal, port, output):
     try:
         zero_offset = cal[port][0]
         cal_factor = cal[port][1]
+
+        if cal_factor == 0:
+            print("adjusting calibration factor to 1")
+            cal_factor = 1  # reset cal_factor if 0
         scales[port].setZeroOffset(zero_offset)
         scales[port].setCalibrationFactor(cal_factor)
         print("{0}: Calibration for scale on port {1} set. \n"
