@@ -194,6 +194,7 @@ def get_weights(mux, scales, cal, output, weight_data):
     weight_dict = dict()
     start_time = datetime.now().isoformat()
     for i in scales.keys():
+        print(i)
         set_calibration(mux, scales, cal, i, output)
         enable_port(mux, int(i))
         # get 4 weight readings and average them
