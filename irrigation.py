@@ -43,7 +43,7 @@ class ds18b20:
         return self.ds18b20.get_temperature()
 
     def log_temperature(self):
-        self.log.setdefault(datetime.now(), self.get_temperature())
+        self.log.setdefault(datetime.now().isoformat(), self.get_temperature())
 
     def get_temp_record(self):
         return self.log
