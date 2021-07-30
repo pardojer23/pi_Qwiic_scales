@@ -1,4 +1,4 @@
-#from w1thermsensor import W1ThermSensor
+from w1thermsensor import W1ThermSensor
 import board
 import busio
 import time
@@ -32,7 +32,17 @@ class Solenoid:
         time.sleep(open_time)
         self.close_valve()
 
+
+class ds18b20:
+    def __init__(self):
+        self.ds18b20 = W1ThermSensor()
+
+    def get_temperature(self):
+        return self.ds18b20.get_temperature()
+
 def main():
+    t1 = ds18b20()
+    print(t1.get_temperature())
     s1 = Solenoid(13)
     s1.water(amount=10)
 
