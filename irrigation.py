@@ -2,6 +2,7 @@ from w1thermsensor import W1ThermSensor
 import board
 import busio
 import time
+from datetime import datetime
 i2c = busio.I2C(board.SCL, board.SDA)
 import RPi.GPIO as GPIO
 import sync_data
@@ -36,15 +37,23 @@ class Solenoid:
 class ds18b20:
     def __init__(self):
         self.ds18b20 = W1ThermSensor()
+        self.log = dict()
 
     def get_temperature(self):
         return self.ds18b20.get_temperature()
 
+    def log_temperature(self):
+        self.log.setdefault(datetime.now(), self.get_temperature())
+
+    def get_temp_record(self):
+        return self.log
+
 def main():
     t1 = ds18b20()
-    print(t1.get_temperature())
-    s1 = Solenoid(13)
-    s1.water(amount=10)
+    t1.log_temperature()
+    print(t1.get_temp_record())
+    #s1 = Solenoid(13)
+    #s1.water(amount=10)
 
 
 if __name__ == "__main__":
