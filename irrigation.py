@@ -1,4 +1,4 @@
-from w1thermsensor import W1ThermSensor
+#from w1thermsensor import W1ThermSensor
 import board
 import busio
 import time
