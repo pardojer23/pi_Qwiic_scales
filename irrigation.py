@@ -5,6 +5,7 @@ import time
 from datetime import datetime
 i2c = busio.I2C(board.SCL, board.SDA)
 import RPi.GPIO as GPIO
+import json
 import sync_data
 
 
@@ -48,12 +49,21 @@ class ds18b20:
     def get_temp_record(self):
         return self.log
 
+
+class Experiment:
+    def __init__(self, treatments):
+        with open(treatments, "r") as f:
+            treatment_dict = json.load(f)
+
+
 def main():
     t1 = ds18b20()
     t1.log_temperature()
     print(t1.get_temp_record())
     #s1 = Solenoid(13)
     #s1.water(amount=10)
+    s6 = Solenoid(21)
+    s6.water(50)
 
 
 if __name__ == "__main__":
