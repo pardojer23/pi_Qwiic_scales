@@ -31,7 +31,7 @@ class Solenoid:
         GPIO.output(self.channel, GPIO.LOW)
         GPIO.output(21, GPIO.LOW)
 
-    def water(self, amount, rate=2.103):
+    def water(self, amount, rate=0.52575):
         open_time = float(amount) / float(rate)
         print("watering for {0} minutes".format(round(open_time/60, ndigits=2)))
         self.open_valve()
