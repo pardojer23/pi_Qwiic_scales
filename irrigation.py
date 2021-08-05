@@ -20,12 +20,16 @@ class Solenoid:
     def __init__(self, channel):
         self.channel = channel
         GPIO.setup(channel, GPIO.OUT)
+        GPIO.setup(21, GPIO.OUT)
 
     def open_valve(self):
+
+        GPIO.output(21, GPIO.HIGH)
         GPIO.output(self.channel, GPIO.HIGH)
 
     def close_valve(self):
         GPIO.output(self.channel, GPIO.LOW)
+        GPIO.output(21, GPIO.LOW)
 
     def water(self, amount, rate=2.103):
         open_time = float(amount) / float(rate)
@@ -62,8 +66,8 @@ def main():
     print(t1.get_temp_record())
     s1 = Solenoid(13)
     s1.water(amount=100)
-    s6 = Solenoid(21)
-    s6.water(100)
+    #s6 = Solenoid(21)
+    #s6.water(100)
 
 
 if __name__ == "__main__":
