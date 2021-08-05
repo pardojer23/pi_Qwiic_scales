@@ -60,10 +60,10 @@ def main():
     t1 = ds18b20()
     t1.log_temperature()
     print(t1.get_temp_record())
-    #s1 = Solenoid(13)
-    #s1.water(amount=10)
+    s1 = Solenoid(13)
+    s1.water(amount=100)
     s6 = Solenoid(21)
-    s6.water(50)
+    s6.water(100)
 
 
 if __name__ == "__main__":
