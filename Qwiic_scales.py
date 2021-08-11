@@ -29,13 +29,13 @@ def disable_port(mux, ports):
     mux.disable_channels(ports)
 
 
-def initialize_mux():
+def initialize_mux(i2c=0x71):
     """
     Creates a QwiicTCA9548A multiplexer instance
     :return: QwiicTCA9548A multiplexer instance
 
     """
-    my_mux = qwiic.QwiicTCA9548A()
+    my_mux = qwiic.QwiicTCA9548A(i2c)
     ports = [0, 1, 2, 3, 4, 5, 6, 7]
     # disable all channels
     disable_port(my_mux, ports)
