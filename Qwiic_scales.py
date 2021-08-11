@@ -40,7 +40,7 @@ def initialize_mux():
     # disable all channels
     disable_port(my_mux, ports)
 
-return my_mux
+    return my_mux
 
 
 def create_bus():
