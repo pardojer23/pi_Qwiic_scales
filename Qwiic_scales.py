@@ -5,6 +5,7 @@ import smbus2
 import argparse
 import json
 import os
+import time
 
 
 def enable_port(mux, ports):
@@ -24,6 +25,7 @@ def disable_port(mux, ports):
         :param ports: Multiplexer port(s) to disable.
         :return: None
         """
+    time.sleep(1)
     mux.disable_channels(ports)
 
 
@@ -37,7 +39,8 @@ def initialize_mux():
     ports = [0, 1, 2, 3, 4, 5, 6, 7]
     # disable all channels
     disable_port(my_mux, ports)
-    return my_mux
+
+return my_mux
 
 
 def create_bus():

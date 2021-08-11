@@ -20,18 +20,14 @@ class Solenoid:
     def __init__(self, channel):
         self.channel = channel
         GPIO.setup(channel, GPIO.OUT)
-        GPIO.setup(21, GPIO.OUT)
 
     def open_valve(self):
-
-        GPIO.output(21, GPIO.HIGH)
         GPIO.output(self.channel, GPIO.HIGH)
 
     def close_valve(self):
         GPIO.output(self.channel, GPIO.LOW)
-        GPIO.output(21, GPIO.LOW)
 
-    def water(self, amount, rate=0.52575):
+    def water(self, amount, rate=0.06309):
         open_time = float(amount) / float(rate)
         print("watering for {0} minutes".format(round(open_time/60, ndigits=2)))
         self.open_valve()
@@ -57,15 +53,28 @@ class ds18b20:
 class Experiment:
     def __init__(self, treatments):
         with open(treatments, "r") as f:
-            treatment_dict = json.load(f)
+            self.treatment_dict = json.load(f)
+        self.solenoid_dict = {}
+        for valve in self.treatment_dict["valves"]:
+            print(valve["valve_pin"])
+            self.solenoid_dict.setdefault("s" + str(valve["valve_number"]),
+                                          Solenoid(valve["valve_pin"]))
+        self.water_dict = {}
+        for solen
+
 
 
 def main():
+    treatment_file = '/home/jeremy/Documents/MSU/Research/Comp_Grass_Drought/treatments.json'
+    my_experiment = Experiment(treatment_file)
     t1 = ds18b20()
     t1.log_temperature()
     print(t1.get_temp_record())
+    s6_master = Solenoid(21)
+    s6_master.open_valve()
     s1 = Solenoid(13)
-    s1.water(amount=100)
+    s1.water(amount=20)
+    s6_master.close_valve()
     #s6 = Solenoid(21)
     #s6.water(100)
 
