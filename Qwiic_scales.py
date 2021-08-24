@@ -50,6 +50,7 @@ class Scale:
         self.mux_board.mux.enable_channels(self.port)
         self.scale.calculateZeroOffset()
         self.zero_offset = self.scale.getZeroOffset()
+        print("Tare")
         cal = float(input("Mass in kg? "))
         self.scale.calculateCalibrationFactor(cal)
         self.cal_factor = self.scale.getCalibrationFactor()
@@ -123,6 +124,7 @@ class Experiment:
                 scales_dict.setdefault(port, Scale(self.mux_dict[mux], port))
             for scale in scales_dict.keys():
                 if scales_dict[scale].is_connected():
+                    print("check")
                     print("tare scale on port {0}".format(scales_dict[scale].get_port()))
                     scales_dict[scale].tare_scale()
                     scales_dict[scale].write_calibration(os.path.join(self.treatment_dict["output_dir"],
