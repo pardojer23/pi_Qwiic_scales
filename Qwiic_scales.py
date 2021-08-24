@@ -91,7 +91,7 @@ class Scale:
         self.mux_board.mux.disable_channels(self.port)
         return average_weight
 
-    def write_calibration(self, file):
+    def set_calibration(self, file):
         scale_cal = {str(self.port): (self.get_zero_offset(), self.get_cal_factor())}
         mux_id = hex(self.mux_board.i2c)
         try:
@@ -101,8 +101,10 @@ class Scale:
                     cal_dict[mux_id].update(scale_cal)
                 else:
                     cal_dict.setdefault(mux_id, scale_cal)
-                print(cal_dict)
-                json.dump(cal_dict, cal_file, indent=4, sort_keys=True)
+                    cal_file.seek(0)
+                    cal_file.write(json.dumps(cal_dict, indent=4, sort_keys=True))
+                    cal_file.truncate()
+
         except IOError:
             with open(file, "w+") as cal_file:
                 cal_dict = {mux_id: scale_cal}
