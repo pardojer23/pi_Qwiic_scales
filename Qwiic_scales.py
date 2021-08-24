@@ -135,9 +135,9 @@ class Experiment:
                 mux_address = split_pair[0]
                 scale = split_pair[1]
                 if mux_address in scales_dict.keys():
-                    scales_dict[mux_address].setdefualt(scale, Scale(int(mux_address, 16), scale))
+                    scales_dict[mux_address].setdefualt(scale, Scale(MuxBoard(mux_address), scale))
                 else:
-                    scales_dict.setdefault(mux_address, {scale: Scale(int(mux_address, 16), scale)})
+                    scales_dict.setdefault(mux_address, {scale: Scale(MuxBoard(mux_address), scale)})
         print(scales_dict)
         for mux in scales_dict.keys():
             for scale in scales_dict[mux].keys():
