@@ -132,12 +132,12 @@ class Experiment:
             scale_list = scales.strip().split(",")
             for pair in scale_list:
                 split_pair = pair.strip().split("-")
-                mux_num = split_pair[0]
+                mux_address = split_pair[0]
                 scale = split_pair[1]
-                if mux_num in scales_dict.keys():
-                    scales_dict[mux_num].setdefualt(scale, Scale(mux_num, scale))
+                if mux_address in scales_dict.keys():
+                    scales_dict[mux_address].setdefualt(scale, Scale(int(mux_address), scale))
                 else:
-                    scales_dict.setdefault(mux_num, {scale: Scale(mux_num, scale)})
+                    scales_dict.setdefault(mux_address, {scale: Scale(int(mux_address), scale)})
         for mux in scales_dict.keys():
             for scale in scales_dict[mux].keys():
                 if scales_dict[mux][scale].is_connected():
