@@ -30,6 +30,8 @@ class MuxBoard:
                 :param ports: Multiplexer port(s) to disable.
                 :return: None
         """
+        print(self.i2c)
+        print(self.mux)
         self.mux.list_channels() #debugging
         self.mux.disable_channels(ports)
 
