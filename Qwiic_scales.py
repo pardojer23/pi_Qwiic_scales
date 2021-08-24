@@ -40,31 +40,31 @@ class MuxBoard:
 class Scale:
 
     def __init__(self, mux, port):
-        self.mux = mux
+        self.mux_board = mux
         self.port = port
         self.scale = PyNAU7802.NAU7802()
         self.zero_offset = float()
         self.cal_factor = float()
 
     def tare_scale(self):
-        self.mux.enable_channels(self.port)
+        self.mux_board.mux.enable_channels(self.port)
         self.scale.calculateZeroOffset()
         self.zero_offset = self.scale.getZeroOffset()
         cal = float(input("Mass in kg? "))
         self.scale.calculateCalibrationFactor(cal)
         self.cal_factor = self.scale.getCalibrationFactor()
-        self.mux.disable_channels(self.port)
+        self.mux_board.mux.disable_channels(self.port)
 
     def is_connected(self):
         bus = smbus2.SMBus(1)
-        self.mux.enable_channels(self.port)
+        self.mux_board.mux.enable_channels(self.port)
         try:
             if self.scale.begin(bus):
                 return True
             else:
                 return False
         finally:
-            self.mux.disable_channels(self.port)
+            self.mux_board.mux.disable_channels(self.port)
 
     def set_zero_offset(self):
         self.scale.setZeroOffset(self.zero_offset)
@@ -82,12 +82,12 @@ class Scale:
         return self.port
 
     def get_weight(self):
-        self.mux.enable_channels(self.port)
+        self.mux_board.mux.enable_channels(self.port)
         self.set_zero_offset()
         self.set_cal_factor()
         five_weights = [self.scale.getWeight() for i in range(5)]
         average_weight = round((sum(five_weights) / len(five_weights)), 3)
-        self.mux.disable_channels(self.port)
+        self.mux_board.mux.disable_channels(self.port)
         return average_weight
 
     def write_calibration(self, file):
@@ -95,14 +95,14 @@ class Scale:
         try:
             with open(file, "r+") as cal_file:
                 cal_dict = json.load(cal_file)
-                if self.mux in cal_dict.keys():
-                    cal_dict[self.mux].update(scale_cal)
+                if self.mux_board in cal_dict.keys():
+                    cal_dict[self.mux_board].update(scale_cal)
                 else:
-                    cal_dict.setdefault(self.mux, scale_cal)
+                    cal_dict.setdefault(self.mux_board, scale_cal)
                 json.dump(cal_dict, cal_file, indent=4, sort_keys=True)
         except IOError:
             with open(file, "w+") as cal_file:
-                cal_dict = {self.mux: scale_cal}
+                cal_dict = {self.mux_board: scale_cal}
                 json.dump(cal_dict, cal_file, indent=4, sort_keys=True)
 
 
