@@ -15,6 +15,10 @@ class MuxBoard:
         self.mux = qwiic.QwiicTCA9548A(address=self.i2c)
         self.ports = [0, 1, 2, 3, 4, 5, 6, 7]
         self.disable_port(self.ports)
+        if self.mux.is_connected():
+            print("Successfully connected to QwiicTCA9548A at {0}".format(self.i2c))
+        else:
+            print("Connection Failed!")
 
     def enable_port(self, ports):
         """
@@ -30,11 +34,6 @@ class MuxBoard:
                 :param ports: Multiplexer port(s) to disable.
                 :return: None
         """
-        print(self.i2c)
-        print(type(self.i2c))
-        print(self.mux)
-        print(self.mux.is_connected())
-        self.mux.list_channels() #debugging
         self.mux.disable_channels(ports)
 
 
@@ -120,6 +119,8 @@ class Experiment:
 
         for valve, mux in zip(self.treatment_dict["valves"].keys(), self.mux_dict.keys()):
             scales_dict = dict()
+            print(valve)
+            print(self.treatment_dict["valves"][valve])
             scales_dict.setdefault(self.treatment_dict["valves"][valve],
                                    Scale(mux, valve))
             for scale in scales_dict.keys():
