@@ -92,7 +92,7 @@ class Scale:
         return average_weight
 
     def write_calibration(self, file):
-        scale_cal = {self.port: (self.get_zero_offset(), self.get_cal_factor())}
+        scale_cal = {str(self.port): (self.get_zero_offset(), self.get_cal_factor())}
         mux_id = hex(self.mux_board.i2c)
         try:
             with open(file, "r+") as cal_file:
