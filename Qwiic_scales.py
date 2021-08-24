@@ -138,6 +138,7 @@ class Experiment:
                     scales_dict[mux_address].setdefualt(scale, Scale(int(mux_address, 16), scale))
                 else:
                     scales_dict.setdefault(mux_address, {scale: Scale(int(mux_address, 16), scale)})
+        print(scales_dict)
         for mux in scales_dict.keys():
             for scale in scales_dict[mux].keys():
                 if scales_dict[mux][scale].is_connected():
