@@ -118,7 +118,7 @@ class Experiment:
         self.mux_dict = dict()
 
         for i in self.treatment_dict["valves"].keys():
-            self.mux_dict.setdefault(i, MuxBoard(self.treatment_dict["valves"][i]["mux_number"]))
+            self.mux_dict.setdefault(i, MuxBoard(self.treatment_dict["valves"][i]["mux_address"]))
 
     def calibrate_scales(self, scales):
         scales_dict = dict()
@@ -154,8 +154,8 @@ def main():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--treatment", help="path to treatments json file")
-    parser.add_argument("-c", "--calibrate", help="scales to calibrate (multiplexer number - scale) \n"
-                                                  "eg. 0-0,1-2 set to all to calibrate all scales", default=None)
+    parser.add_argument("-c", "--calibrate", help="scales to calibrate (multiplexer address - scale) \n"
+                                                  "eg. 0x70-0,0x71-2 set to all to calibrate all scales", default=None)
     args = parser.parse_args()
     treatment_file = args.treatment
     calibrate = args.calibrate
