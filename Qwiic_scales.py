@@ -32,6 +32,7 @@ class MuxBoard:
         """
         print(self.i2c)
         print(self.mux)
+        print(self.mux.is_connected())
         self.mux.list_channels() #debugging
         self.mux.disable_channels(ports)
 
