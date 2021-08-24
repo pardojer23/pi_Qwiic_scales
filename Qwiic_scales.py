@@ -141,7 +141,7 @@ class Experiment:
         for mux in scales_dict.keys():
             for scale in scales_dict[mux].keys():
                 if scales_dict[mux][scale].is_connected():
-                    print("tare scale on port {0}".format(scales_dict[scale].get_port()))
+                    print("tare scale on port {0}".format(scales_dict[mux][scale].get_port()))
                     scales_dict[mux][scale].tare_scale()
                     scales_dict[mux][scale].write_calibration(os.path.join(self.treatment_dict["output_dir"],
                                                                            self.treatment_dict["cal_file"]))
