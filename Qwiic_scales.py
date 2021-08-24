@@ -93,17 +93,18 @@ class Scale:
 
     def write_calibration(self, file):
         scale_cal = {self.port: (self.get_zero_offset(), self.get_cal_factor())}
+        mux_id = hex(self.mux_board.i2c)
         try:
             with open(file, "r+") as cal_file:
                 cal_dict = json.load(cal_file)
-                if self.mux_board in cal_dict.keys():
-                    cal_dict[self.mux_board].update(scale_cal)
+                if mux_id in cal_dict.keys():
+                    cal_dict[mux_id].update(scale_cal)
                 else:
-                    cal_dict.setdefault(self.mux_board, scale_cal)
+                    cal_dict.setdefault(mux_id, scale_cal)
                 json.dump(cal_dict, cal_file, indent=4, sort_keys=True)
         except IOError:
             with open(file, "w+") as cal_file:
-                cal_dict = {self.mux_board: scale_cal}
+                cal_dict = {mux_id: scale_cal}
                 json.dump(cal_dict, cal_file, indent=4, sort_keys=True)
 
 
