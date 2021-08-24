@@ -101,6 +101,7 @@ class Scale:
                     cal_dict[mux_id].update(scale_cal)
                 else:
                     cal_dict.setdefault(mux_id, scale_cal)
+                print(cal_dict)
                 json.dump(cal_dict, cal_file, indent=4, sort_keys=True)
         except IOError:
             with open(file, "w+") as cal_file:
