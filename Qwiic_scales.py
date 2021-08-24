@@ -120,7 +120,7 @@ class Experiment:
         for valve, mux in zip(self.treatment_dict["valves"].keys(), self.mux_dict.keys()):
             scales_dict = dict()
             for port in self.treatment_dict["valves"][valve]["scales"]:
-                scales_dict.setdefault(port, Scale(mux, port))
+                scales_dict.setdefault(port, Scale(self.mux_dict[mux], port))
             for scale in scales_dict.keys():
                 if scales_dict[scale].is_connected():
                     print("tare scale on port {0}".format(scales_dict[scale].get_port()))
