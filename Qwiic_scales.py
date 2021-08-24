@@ -91,7 +91,7 @@ class Scale:
         self.mux_board.mux.disable_channels(self.port)
         return average_weight
 
-    def set_calibration(self, file):
+    def write_calibration(self, file):
         scale_cal = {str(self.port): (self.get_zero_offset(), self.get_cal_factor())}
         mux_id = hex(self.mux_board.i2c)
         try:
