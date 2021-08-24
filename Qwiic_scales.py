@@ -31,6 +31,7 @@ class MuxBoard:
                 :return: None
         """
         print(self.i2c)
+        print(type(self.i2c))
         print(self.mux)
         print(self.mux.is_connected())
         self.mux.list_channels() #debugging
