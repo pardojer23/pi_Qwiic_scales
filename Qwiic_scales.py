@@ -11,7 +11,7 @@ import time
 class MuxBoard:
 
     def __init__(self, i2c):
-        self.i2c = hex(int(i2c, 16))
+        self.i2c = int(i2c, 16)
         self.mux = qwiic.QwiicTCA9548A(address=self.i2c)
         self.ports = [0, 1, 2, 3, 4, 5, 6, 7]
         self.disable_port(self.ports)
