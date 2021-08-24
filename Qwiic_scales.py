@@ -41,7 +41,7 @@ class Scale:
 
     def __init__(self, mux, port):
         self.mux_board = mux
-        self.port = port
+        self.port = int(port)
         self.scale = PyNAU7802.NAU7802()
         self.zero_offset = float()
         self.cal_factor = float()
