@@ -118,22 +118,33 @@ class Experiment:
         self.mux_dict = dict()
 
         for i in self.treatment_dict["valves"].keys():
-            self.mux_dict.setdefault(i, MuxBoard(self.treatment_dict["valves"][i]["mux_address"]))
+            self.mux_dict.setdefault(i, MuxBoard(self.treatment_dict["valves"][i]["mux_number"]))
 
-    def calibrate_scales(self):
+    def calibrate_scales(self, scales):
+        scales_dict = dict()
+        if scales.lower() == "all":
+            for valve, mux in zip(self.treatment_dict["valves"].keys(), self.mux_dict.keys()):
+                scales_dict.setdefault(mux, {})
+                for port in self.treatment_dict["valves"][valve]["scales"]:
+                    scales_dict[mux].setdefault(port, Scale(self.mux_dict[mux], port))
+        else:
 
-        for valve, mux in zip(self.treatment_dict["valves"].keys(), self.mux_dict.keys()):
-            scales_dict = dict()
-            for port in self.treatment_dict["valves"][valve]["scales"]:
-                print("port check {0}".format(port))
-                scales_dict.setdefault(port, Scale(self.mux_dict[mux], port))
-            for scale in scales_dict.keys():
-                if scales_dict[scale].is_connected():
-                    print("check")
+            scale_list = scales.strip().split(",")
+            for pair in scale_list:
+                split_pair = pair.strip().split("-")
+                mux_num = split_pair[0]
+                scale = split_pair[1]
+                if mux_num in scales_dict.keys():
+                    scales_dict[mux_num].setdefualt(scale, Scale(mux_num, scale))
+                else:
+                    scales_dict.setdefault(mux_num, {scale: Scale(mux_num, scale)})
+        for mux in scales_dict.keys():
+            for scale in scales_dict[mux].keys():
+                if scales_dict[mux][scale].is_connected():
                     print("tare scale on port {0}".format(scales_dict[scale].get_port()))
-                    scales_dict[scale].tare_scale()
-                    scales_dict[scale].write_calibration(os.path.join(self.treatment_dict["output_dir"],
-                                                                      self.treatment_dict["cal_file"]))
+                    scales_dict[mux][scale].tare_scale()
+                    scales_dict[mux][scale].write_calibration(os.path.join(self.treatment_dict["output_dir"],
+                                                                           self.treatment_dict["cal_file"]))
 
 
 def main():
@@ -143,11 +154,15 @@ def main():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--treatment", help="path to treatments json file")
+    parser.add_argument("-c", "--calibrate", help="scales to calibrate (multiplexer number - scale) \n"
+                                                  "eg. 0-0,1-2 set to all to calibrate all scales", default=None)
     args = parser.parse_args()
     treatment_file = args.treatment
+    calibrate = args.calibrate
     print("{0}:########Starting Qwiic scales#########\n".format(datetime.now()))
     my_experiment = Experiment(treatment_file)
-    my_experiment.calibrate_scales()
+    if calibrate is not None:
+        my_experiment.calibrate_scales(calibrate)
     print("finished")
 
 
