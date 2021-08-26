@@ -67,11 +67,11 @@ class Scale:
         finally:
             self.mux_board.mux.disable_channels(self.port)
 
-    def set_zero_offset(self):
-        self.scale.setZeroOffset(self.zero_offset)
+    def set_zero_offset(self, zero_offset):
+        self.scale.setZeroOffset(zero_offset)
 
-    def set_cal_factor(self):
-        self.scale.setCalibrationFactor(self.cal_factor)
+    def set_cal_factor(self, cal_factor):
+        self.scale.setCalibrationFactor(cal_factor)
 
     def get_zero_offset(self):
         return self.zero_offset
@@ -84,8 +84,6 @@ class Scale:
 
     def get_weight(self):
         self.mux_board.mux.enable_channels(self.port)
-        self.set_zero_offset()
-        self.set_cal_factor()
         five_weights = [self.scale.getWeight() for i in range(5)]
         average_weight = round((sum(five_weights) / len(five_weights)), 3)
         self.mux_board.mux.disable_channels(self.port)
@@ -120,7 +118,7 @@ class Experiment:
         for i in self.treatment_dict["valves"].keys():
             self.mux_dict.setdefault(i, MuxBoard(self.treatment_dict["valves"][i]["mux_address"]))
 
-    def calibrate_scales(self, scales):
+    def get_scales_dict(self, scales):
         scales_dict = dict()
         if scales.lower() == "all":
             for valve, mux in zip(self.treatment_dict["valves"].keys(), self.mux_dict.keys()):
@@ -138,14 +136,32 @@ class Experiment:
                     scales_dict[mux_address].setdefualt(scale, Scale(MuxBoard(mux_address), scale))
                 else:
                     scales_dict.setdefault(mux_address, {scale: Scale(MuxBoard(mux_address), scale)})
+        return scales_dict
+
+    def calibrate_scales(self, scales):
+        scales_dict = self.get_scales_dict(scales)
         print(scales_dict)
         for mux in scales_dict.keys():
             for scale in scales_dict[mux].keys():
                 if scales_dict[mux][scale].is_connected():
-                    print("tare scale on port {0}".format(scales_dict[mux][scale].get_port()))
+                    print("tare scale on multiplexer {0} port {1}".format(mux, scales_dict[mux][scale].get_port()))
                     scales_dict[mux][scale].tare_scale()
                     scales_dict[mux][scale].write_calibration(os.path.join(self.treatment_dict["output_dir"],
                                                                            self.treatment_dict["cal_file"]))
+
+    def read_weights(self, scales):
+        scales_dict = self.get_scales_dict(scales)
+        weight_dict = dict()
+        for mux in scales_dict.keys():
+            weight_dict.setdefault(str(mux), {})
+            for scale in scales_dict[mux].keys():
+                if scales_dict[mux][scale].is_connected():
+                    print("Reading weight from scale on multiplexer {0} port {1}".format(mux, scales_dict[mux][scale].get_port()))
+                    weight = scales_dict[mux][scale].get_weight()
+                    weight_dict[mux].setdefault(str(scale), weight)
+        return weight_dict
+
+
 
 
 def main():
