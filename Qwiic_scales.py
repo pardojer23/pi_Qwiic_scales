@@ -5,6 +5,12 @@ import smbus2
 import argparse
 import json
 import os
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+import pandas as pd
+
+
+
 import time
 
 
@@ -151,17 +157,35 @@ class Experiment:
 
     def read_weights(self, scales):
         scales_dict = self.get_scales_dict(scales)
-        weight_dict = dict()
+        mux_list = []
+        scale_list = []
+        weight_list = []
         for mux in scales_dict.keys():
-            weight_dict.setdefault(str(mux), {})
             for scale in scales_dict[mux].keys():
                 if scales_dict[mux][scale].is_connected():
                     print("Reading weight from scale on multiplexer {0} port {1}".format(mux, scales_dict[mux][scale].get_port()))
-                    weight = scales_dict[mux][scale].get_weight()
-                    weight_dict[mux].setdefault(str(scale), weight)
-        return weight_dict
+                    weight_list.append( scales_dict[mux][scale].get_weight())
+                    mux_list.append(mux)
+                    scale_list.append(scale)
+        current_time = datetime.now().isoformat()
+        timestamp = [current_time for i in range(len(scale_list))]
+        weight_df = pd.DataFrame({"Timestamp": timestamp,
+                                  "Multiplexer": mux_list,
+                                  "Scale": scale_list,
+                                  "Weight": weight_list})
+        return weight_df
 
-
+    def write_weights(self, spreadsheet, sheet_name, scales):
+        weight_df = self.read_weights(scales)
+        scope = ['https://spreadsheets.google.com/feeds',
+             'https://www.googleapis.com/auth/drive']
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                        self.treatment_dict["gdrive_credential"], scope)
+        gc = gspread.authorize(credentials)
+        sheet = gc.open(spreadsheet)
+        params = {'valueInputOption': 'USER_ENTERED'}
+        body = {'values': weight_df.values.tolist()}
+        sheet.values_append(f'{sheet_name:str}!A1:G1', params, body)
 
 
 def main():
@@ -180,6 +204,10 @@ def main():
     my_experiment = Experiment(treatment_file)
     if calibrate is not None:
         my_experiment.calibrate_scales(calibrate)
+    my_experiment.write_weights(spreadsheet=my_experiment.treatment_dict["spreadsheet"],
+                                sheet_name=my_experiment.treatment_dict["sheet_name"],
+                                scales="all")
+
     print("finished")
 
 

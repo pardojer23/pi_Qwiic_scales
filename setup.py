@@ -11,4 +11,7 @@ setup(name='pi_Qwiic_scales',
                 'PyNAU7802',
                 'smbus2',
                 'sparkfun-qwiic',
-                'PyDrive'])
+                'PyDrive',
+                'gspread',
+                'oauth2client',
+                'pandas'])
