@@ -159,6 +159,7 @@ class Experiment:
         cal_file_path = os.path.join(self.treatment_dict["output_dir"], self.treatment_dict["cal_file"])
         with open(cal_file_path, "r") as cal_file:
             cal_dict = json.load(cal_file)
+            print(cal_dict)
         scales_dict = self.get_scales_dict(scales)
         print(scales_dict)
         mux_list = []
