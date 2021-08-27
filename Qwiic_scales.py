@@ -185,7 +185,7 @@ class Experiment:
         sheet = gc.open(spreadsheet)
         params = {'valueInputOption': 'USER_ENTERED'}
         body = {'values': weight_df.values.tolist()}
-        sheet.values_append(f'{sheet_name:str}!A1:G1', params, body)
+        sheet.values_append(f'{sheet_name:str}!A1:D1', params, body)
 
 
 def main():
