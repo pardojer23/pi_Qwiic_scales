@@ -165,7 +165,7 @@ class Experiment:
         scale_list = []
         weight_list = []
         for mux in scales_dict.keys():
-            mux_address = self.treatment_dict[mux]["mux_address"]
+            mux_address = self.treatment_dict["valves"][mux]["mux_address"]
             for scale in scales_dict[mux].keys():
                 if scales_dict[mux][scale].is_connected():
                     print("Reading weight from scale on multiplexer {0} port {1}".format(mux, scales_dict[mux][scale].get_port()))
