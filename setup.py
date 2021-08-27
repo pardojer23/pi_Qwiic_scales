@@ -14,4 +14,5 @@ setup(name='pi_Qwiic_scales',
                 'PyDrive',
                 'gspread',
                 'oauth2client',
+                'cython',
                 'pandas'])
