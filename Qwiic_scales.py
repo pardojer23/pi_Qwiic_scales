@@ -183,16 +183,12 @@ class Experiment:
         credentials = ServiceAccountCredentials.from_json_keyfile_name(
                         self.treatment_dict["gdrive_credential"], scope)
         gc = gspread.authorize(credentials)
-        sheet = gc.open(spreadsheet).worksheet(sheet_name)
-        row_to_start = sheet.row_count + 1
-        print(row_to_start)
-        print(weight_df.shape)
-        sheet.add_rows(weight_df.shape[0])
-        gspread_dataframe.set_with_dataframe(worksheet=sheet,
-                                             dataframe=weight_df,
-                                             include_index=False,
-                                             include_column_header=False,
-                                             row=row_to_start, resize=False)
+        sheet = gc.open(spreadsheet)
+        values = weight_df.values.tolist()
+        sheet.values_append(sheet_name,
+                            {'valueInputOption': "USER_ENTERED"},
+                            {'values': values})
+
 
 
 def main():
