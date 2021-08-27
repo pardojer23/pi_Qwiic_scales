@@ -185,6 +185,8 @@ class Experiment:
         gc = gspread.authorize(credentials)
         sheet = gc.open(spreadsheet).worksheet(sheet_name)
         row_to_start = sheet.row_count + 1
+        print(row_to_start)
+        print(weight_df.shape)
         sheet.add_rows(weight_df.shape[0])
         gspread_dataframe.set_with_dataframe(worksheet=sheet,
                                              dataframe=weight_df,
