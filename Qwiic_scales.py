@@ -6,6 +6,7 @@ import argparse
 import json
 import os
 import gspread
+import gspread_dataframe
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 
@@ -182,10 +183,13 @@ class Experiment:
         credentials = ServiceAccountCredentials.from_json_keyfile_name(
                         self.treatment_dict["gdrive_credential"], scope)
         gc = gspread.authorize(credentials)
-        sheet = gc.open(spreadsheet)
-        params = {'valueInputOption': 'USER_ENTERED'}
-        body = {'values': weight_df.values.tolist()}
-        sheet.values_append(f'{sheet_name:str}!A1:D1', params, body)
+        sheet = gc.open(spreadsheet).worksheet(sheet_name)
+        sheet.add_rows(weight_df.shape[0])
+        gspread_dataframe.set_with_dataframe(worksheet=sheet,
+                                             dataframe=weight_df,
+                                             include_index=False,
+                                             include_column_header=False,
+                                             row=sheet.row_count + 1, resize=False)
 
 
 def main():

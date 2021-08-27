@@ -13,6 +13,7 @@ setup(name='pi_Qwiic_scales',
                 'sparkfun-qwiic',
                 'PyDrive',
                 'gspread',
+                'gspread_dataframe'
                 'oauth2client',
                 'Cython',
                 'pandas'])
