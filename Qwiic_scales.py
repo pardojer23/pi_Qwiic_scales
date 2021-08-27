@@ -206,13 +206,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--treatment", help="path to treatments json file")
     parser.add_argument("-s", "--scales", help="scales to read weights from (multiplexer address - scale) \n"
-                                                  "eg. 0x70-0,0x71-2 set to all to read all scales", default=all)
+                                                  "eg. 0x70-0,0x71-2 set to all to read all scales", default="all")
     parser.add_argument("-c", "--calibrate", help="scales to calibrate (multiplexer address - scale) \n"
                                                   "eg. 0x70-0,0x71-2 set to all to calibrate all scales", default=None)
     args = parser.parse_args()
     treatment_file = args.treatment
     calibrate = args.calibrate
-    scales = args.scales
+    scales = str(args.scales)
     print("{0}:########Starting Qwiic scales#########\n".format(datetime.now()))
     my_experiment = Experiment(treatment_file)
     if calibrate is not None:
