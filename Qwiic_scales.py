@@ -23,9 +23,9 @@ class MuxBoard:
         self.ports = [0, 1, 2, 3, 4, 5, 6, 7]
         self.disable_port(self.ports)
         if self.mux.is_connected():
-            print("Successfully connected to QwiicTCA9548A at {0}".format(self.i2c))
+            print("Successfully connected to QwiicTCA9548A at {0}".format(hex(self.i2c)))
         else:
-            print("Connection Failed!")
+            print("Connection Failed for QwiicTCA9548A at {0}!".format(hex(self.i2c)))
 
     def enable_port(self, ports):
         """
@@ -57,8 +57,7 @@ class Scale:
         self.mux_board.mux.enable_channels(self.port)
         self.scale.calculateZeroOffset()
         self.zero_offset = self.scale.getZeroOffset()
-        print("Tare")
-        cal = float(input("Mass in kg? "))
+        cal = float(input("Enter Mass in kg"))
         self.scale.calculateCalibrationFactor(cal)
         self.cal_factor = self.scale.getCalibrationFactor()
         self.mux_board.mux.disable_channels(self.port)
@@ -157,7 +156,11 @@ class Experiment:
                                                                            self.treatment_dict["cal_file"]))
 
     def read_weights(self, scales):
+        cal_file_path = os.path.join(self.treatment_dict["output_dir"], self.treatment_dict["cal_file"])
+        with open(cal_file_path, "r") as cal_file:
+            cal_dict = json.load(cal_file)
         scales_dict = self.get_scales_dict(scales)
+        print(scales_dict)
         mux_list = []
         scale_list = []
         weight_list = []
@@ -165,7 +168,11 @@ class Experiment:
             for scale in scales_dict[mux].keys():
                 if scales_dict[mux][scale].is_connected():
                     print("Reading weight from scale on multiplexer {0} port {1}".format(mux, scales_dict[mux][scale].get_port()))
-                    weight_list.append( scales_dict[mux][scale].get_weight())
+                    zero_offset = cal_dict[mux][scale][0]
+                    cal_factor = cal_dict[mux][scale][1]
+                    scales_dict[mux][scale].set_zero_offset(zero_offset)
+                    scales_dict[mux][scale].set_cal_factor(cal_factor)
+                    weight_list.append(scales_dict[mux][scale].get_weight())
                     mux_list.append(mux)
                     scale_list.append(scale)
         current_time = datetime.now().isoformat()
@@ -198,18 +205,22 @@ def main():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--treatment", help="path to treatments json file")
+    parser.add_argument("-s", "--scales", help="scales to read weights from (multiplexer address - scale) \n"
+                                                  "eg. 0x70-0,0x71-2 set to all to read all scales", default=all)
     parser.add_argument("-c", "--calibrate", help="scales to calibrate (multiplexer address - scale) \n"
                                                   "eg. 0x70-0,0x71-2 set to all to calibrate all scales", default=None)
     args = parser.parse_args()
     treatment_file = args.treatment
     calibrate = args.calibrate
+    scales = args.scales
     print("{0}:########Starting Qwiic scales#########\n".format(datetime.now()))
     my_experiment = Experiment(treatment_file)
     if calibrate is not None:
         my_experiment.calibrate_scales(calibrate)
-    my_experiment.write_weights(spreadsheet=my_experiment.treatment_dict["spreadsheet"],
-                                sheet_name=my_experiment.treatment_dict["sheet_name"],
-                                scales="all")
+    else:
+        my_experiment.write_weights(spreadsheet=my_experiment.treatment_dict["spreadsheet"],
+                                    sheet_name=my_experiment.treatment_dict["sheet_name"],
+                                    scales=scales)
 
     print("finished")
 
