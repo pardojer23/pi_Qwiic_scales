@@ -159,9 +159,7 @@ class Experiment:
         cal_file_path = os.path.join(self.treatment_dict["output_dir"], self.treatment_dict["cal_file"])
         with open(cal_file_path, "r") as cal_file:
             cal_dict = json.load(cal_file)
-            print(cal_dict)
         scales_dict = self.get_scales_dict(scales)
-        print(scales_dict)
         mux_list = []
         scale_list = []
         weight_list = []
@@ -170,13 +168,21 @@ class Experiment:
             for scale in scales_dict[mux].keys():
                 if scales_dict[mux][scale].is_connected():
                     print("Reading weight from scale on multiplexer {0} port {1}".format(mux, scales_dict[mux][scale].get_port()))
-                    zero_offset = cal_dict[mux_address][scale][0]
-                    cal_factor = cal_dict[mux_address][scale][1]
-                    scales_dict[mux][scale].set_zero_offset(zero_offset)
-                    scales_dict[mux][scale].set_cal_factor(cal_factor)
-                    weight_list.append(scales_dict[mux][scale].get_weight())
-                    mux_list.append(mux)
-                    scale_list.append(scale)
+                    if mux_address in cal_dict.keys():
+                        if scale in cal_dict[mux_address].keys():
+                            zero_offset = cal_dict[mux_address][scale][0]
+                            cal_factor = cal_dict[mux_address][scale][1]
+                            scales_dict[mux][scale].set_zero_offset(zero_offset)
+                            scales_dict[mux][scale].set_cal_factor(cal_factor)
+                            weight_list.append(scales_dict[mux][scale].get_weight())
+                            mux_list.append(mux)
+                            scale_list.append(scale)
+                        else:
+                            print("Error: no calibration found for scale {0} at multiplexer {1}".format(scale, mux_address))
+                            exit(1)
+                    else:
+                        print("Error: no calibration found for any scale on multiplexer {0}".format(mux_address))
+                        exit(1)
         current_time = datetime.now().isoformat()
         timestamp = [current_time for i in range(len(scale_list))]
         weight_df = pd.DataFrame({"Timestamp": timestamp,
