@@ -58,7 +58,7 @@ class Experiment:
         for valve in self.treatment_dict["valves"].keys():
 
             self.solenoid_dict.setdefault("s" + str(self.treatment_dict["valves"][valve]["valve_number"]),
-                                          Solenoid(valve["valve_pin"]))
+                                          Solenoid(self.treatment_dict["valves"][valve]["valve_pin"]))
 
     def read_gs_data(self, spreadsheet, sheet_name):
         scope = ['https://spreadsheets.google.com/feeds',
