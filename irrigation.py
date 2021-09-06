@@ -55,6 +55,7 @@ class Experiment:
         with open(treatments, "r") as f:
             self.treatment_dict = json.load(f)
         self.solenoid_dict = {}
+        print(self.treatment_dict)
         for valve in self.treatment_dict["valves"]:
             #print(valve["valve_pin"])
             print(valve)
