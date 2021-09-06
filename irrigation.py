@@ -57,6 +57,7 @@ class Experiment:
         self.solenoid_dict = {}
         for valve in self.treatment_dict["valves"]:
             #print(valve["valve_pin"])
+            print(valve)
             self.solenoid_dict.setdefault("s" + str(valve["valve_number"]),
                                           Solenoid(valve["valve_pin"]))
 
