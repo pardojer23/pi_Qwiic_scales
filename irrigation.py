@@ -55,11 +55,9 @@ class Experiment:
         with open(treatments, "r") as f:
             self.treatment_dict = json.load(f)
         self.solenoid_dict = {}
-        print(self.treatment_dict)
-        for valve in self.treatment_dict["valves"]:
-            #print(valve["valve_pin"])
-            print(valve)
-            self.solenoid_dict.setdefault("s" + str(valve["valve_number"]),
+        for valve in self.treatment_dict["valves"].keys():
+
+            self.solenoid_dict.setdefault("s" + str(self.treatment_dict["valves"][valve]["valve_number"]),
                                           Solenoid(valve["valve_pin"]))
 
     def read_gs_data(self, spreadsheet, sheet_name):
