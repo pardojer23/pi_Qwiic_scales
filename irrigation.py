@@ -6,7 +6,11 @@ from datetime import datetime
 i2c = busio.I2C(board.SCL, board.SDA)
 import RPi.GPIO as GPIO
 import json
-import sync_data
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+import pandas as pd
+import argparse
+
 
 
 # Set GPIO pins to use BCM pin numbers
@@ -27,13 +31,9 @@ class Solenoid:
     def close_valve(self):
         GPIO.output(self.channel, GPIO.LOW)
 
-    def water(self, amount, rate=0.06309):
+    def water_time(self, amount, rate=0.6666):
         open_time = float(amount) / float(rate)
-        print("watering for {0} minutes".format(round(open_time/60, ndigits=2)))
-        self.open_valve()
-        time.sleep(open_time)
-        self.close_valve()
-
+        return open_time
 
 class ds18b20:
     def __init__(self):
@@ -59,26 +59,47 @@ class Experiment:
             print(valve["valve_pin"])
             self.solenoid_dict.setdefault("s" + str(valve["valve_number"]),
                                           Solenoid(valve["valve_pin"]))
-        self.water_dict = {}
-        for solen
 
+    def read_gs_data(self, spreadsheet, sheet_name):
+        scope = ['https://spreadsheets.google.com/feeds',
+                'https://www.googleapis.com/auth/drive']
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(
+            self.treatment_dict["gdrive_credential"], scope)
+        gc = gspread.authorize(credentials)
+        sheet = gc.open(spreadsheet).worksheet(sheet_name)
+        gs_df = pd.DataFrame(sheet.get_all_records())
+        return gs_df
+
+    def get_water_amount(self):
+        water_log = self.read_gs_data(self.treatment_dict["spreadsheet"], "irrigation_log")
+        water_log["timestamp"] = pd.to_datetime(water_log["timestamp"])
+        weight_df = self.read_gs_data(self.treatment_dict["spreadsheet"],
+                                      self.treatment_dict["sheet_name"])
+
+    def write_temp_data(self, spreadsheet, sheet_name):
+        temp_guage = ds18b20()
+        temp = temp_guage.get_temperature()
+        current_time = datetime.now().isoformat()
+        scope = ['https://spreadsheets.google.com/feeds',
+                 'https://www.googleapis.com/auth/drive']
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                self.treatment_dict["gdrive_credential"], scope)
+        gc = gspread.authorize(credentials)
+        sheet = gc.open(spreadsheet)
+        values = [[current_time, temp]]
+        sheet.values_append(sheet_name,
+                            {'valueInputOption': "USER_ENTERED"},
+                            {'values': values})
 
 
 def main():
-    treatment_file = '/home/jeremy/Documents/MSU/Research/Comp_Grass_Drought/treatments.json'
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--treatment", help="path to treatments json file")
+    args= parser.parse_args()
+    treatment_file = args.treatment
     my_experiment = Experiment(treatment_file)
-    t1 = ds18b20()
-    t1.log_temperature()
-    print(t1.get_temp_record())
-    s6_master = Solenoid(21)
-    s6_master.open_valve()
-    s1 = Solenoid(13)
-    s1.water(amount=20)
-    s6_master.close_valve()
-    #s6 = Solenoid(21)
-    #s6.water(100)
-
-
+    my_experiment.write_temp_data(spreadsheet=my_experiment.treatment_dict["spreadsheet"],
+                                  sheet_name="temperature_log")
 if __name__ == "__main__":
     main()
 

@@ -6,7 +6,6 @@ import argparse
 import json
 import os
 import gspread
-import gspread_dataframe
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 
