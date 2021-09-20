@@ -122,6 +122,7 @@ class Experiment:
 
         for i in self.treatment_dict["valves"].keys():
             self.mux_dict.setdefault(i, MuxBoard(self.treatment_dict["valves"][i]["mux_address"]))
+        self.last_temp = self.get_temp(self.treatment_dict["spreadsheet"], "temperature_log" )
 
     def get_scales_dict(self, scales):
         scales_dict = dict()
@@ -151,8 +152,9 @@ class Experiment:
                 if scales_dict[mux][scale].is_connected():
                     print("tare scale on multiplexer {0} port {1}".format(mux, scales_dict[mux][scale].get_port()))
                     scales_dict[mux][scale].tare_scale()
+                    cal_name = str(round(self.last_temp)) + "_"+self.treatment_dict["cal_file"]
                     scales_dict[mux][scale].write_calibration(os.path.join(self.treatment_dict["output_dir"],
-                                                                           self.treatment_dict["cal_file"]))
+                                                                           cal_name))
 
     def read_weights(self, scales):
         cal_file_path = os.path.join(self.treatment_dict["output_dir"], self.treatment_dict["cal_file"])
@@ -192,16 +194,32 @@ class Experiment:
 
     def write_weights(self, spreadsheet, sheet_name, scales):
         weight_df = self.read_weights(scales)
-        scope = ['https://spreadsheets.google.com/feeds',
-             'https://www.googleapis.com/auth/drive']
-        credentials = ServiceAccountCredentials.from_json_keyfile_name(
-                        self.treatment_dict["gdrive_credential"], scope)
-        gc = gspread.authorize(credentials)
+        gc = self.connect_to_drive()
         sheet = gc.open(spreadsheet)
         values = weight_df.values.tolist()
         sheet.values_append(sheet_name,
                             {'valueInputOption': "USER_ENTERED"},
                             {'values': values})
+
+    def connect_to_drive(self):
+        scope = ['https://spreadsheets.google.com/feeds',
+                 'https://www.googleapis.com/auth/drive']
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(
+            self.treatment_dict["gdrive_credential"], scope)
+        gc = gspread.authorize(credentials)
+
+        return gc
+
+
+
+    def get_temp(self, spreadsheet, sheet_name):
+        gc = self.connect_to_drive()
+        temp = gc.open(spreadsheet).worksheet()
+        temp_df = pd.DataFrame(temp.get_all_records())
+        temp_df["datetime"] = [pd.to_datetime(i) for i in temp_df["Timestamp"]]
+        temp_df.set_index("datetime", inplace=True)
+        last_temp = temp_df.loc[max(temp_df.index), "temperature"]
+        return last_temp
 
 
 
