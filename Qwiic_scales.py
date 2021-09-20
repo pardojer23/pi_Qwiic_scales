@@ -122,7 +122,7 @@ class Experiment:
 
         for i in self.treatment_dict["valves"].keys():
             self.mux_dict.setdefault(i, MuxBoard(self.treatment_dict["valves"][i]["mux_address"]))
-        self.last_temp = self.get_temp(self.treatment_dict["spreadsheet"], "temperature_log" )
+        self.last_temp = self.get_temp(self.treatment_dict["spreadsheet"], "temperature_log")
 
     def get_scales_dict(self, scales):
         scales_dict = dict()
@@ -214,7 +214,7 @@ class Experiment:
 
     def get_temp(self, spreadsheet, sheet_name):
         gc = self.connect_to_drive()
-        temp = gc.open(spreadsheet).worksheet()
+        temp = gc.open(spreadsheet).worksheet(sheet_name)
         temp_df = pd.DataFrame(temp.get_all_records())
         temp_df["datetime"] = [pd.to_datetime(i) for i in temp_df["Timestamp"]]
         temp_df.set_index("datetime", inplace=True)
