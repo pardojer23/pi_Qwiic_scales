@@ -96,7 +96,7 @@ class Scale:
 
     def get_average(self):
         self.mux_board.mux.enable_channels(self.port)
-        raw_value = self.scale.get_average(average_amount=8)
+        raw_value = self.scale.getAverage(average_amount=8)
         self.mux_board.mux.disable_channels(self.port)
         return raw_value
 
