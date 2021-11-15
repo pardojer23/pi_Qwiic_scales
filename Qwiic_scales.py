@@ -1,5 +1,5 @@
 import qwiic
-from datetime import datetime
+from datetime import datetime, timedelta
 import PyNAU7802
 import smbus2
 import argparse
@@ -94,6 +94,12 @@ class Scale:
         self.mux_board.mux.disable_channels(self.port)
         return average_weight
 
+    def get_average(self):
+        self.mux_board.mux.enable_channels(self.port)
+        raw_value = self.scale.get_average(average_amount=8)
+        self.mux_board.mux.disable_channels(self.port)
+        return raw_value
+
     def write_calibration(self, file):
         scale_cal = {str(self.port): (self.get_zero_offset(), self.get_cal_factor())}
         mux_id = hex(self.mux_board.i2c)
@@ -164,6 +170,7 @@ class Experiment:
         mux_list = []
         scale_list = []
         weight_list = []
+        raw_list = []
         for mux in scales_dict.keys():
             mux_address = self.treatment_dict["valves"][mux]["mux_address"]
             for scale in scales_dict[mux].keys():
@@ -176,6 +183,7 @@ class Experiment:
                             scales_dict[mux][scale].set_zero_offset(zero_offset)
                             scales_dict[mux][scale].set_cal_factor(cal_factor)
                             weight_list.append(scales_dict[mux][scale].get_weight())
+                            raw_list.append(scales_dict[mux][scale].get_average())
                             mux_list.append(mux)
                             scale_list.append(scale)
                         else:
@@ -189,7 +197,8 @@ class Experiment:
         weight_df = pd.DataFrame({"Timestamp": timestamp,
                                   "Multiplexer": mux_list,
                                   "Scale": scale_list,
-                                  "Weight": weight_list})
+                                  "Weight": weight_list,
+                                  "Raw": raw_list})
         return weight_df
 
     def write_weights(self, spreadsheet, sheet_name, scales):
@@ -210,16 +219,26 @@ class Experiment:
 
         return gc
 
-
-
     def get_temp(self, spreadsheet, sheet_name):
         gc = self.connect_to_drive()
         temp = gc.open(spreadsheet).worksheet(sheet_name)
         temp_df = pd.DataFrame(temp.get_all_records())
         temp_df["datetime"] = [pd.to_datetime(i) for i in temp_df["Timestamp"]]
         temp_df.set_index("datetime", inplace=True)
+
+        return temp_df
+
+    def get_last_temp(self, spreadsheet, sheet_name):
+        temp_df = self.get_temp(spreadsheet, sheet_name)
         last_temp = temp_df.loc[max(temp_df.index), "temperature"]
         return last_temp
+
+    def get_lc_temp(self, spreadsheet, sheet_name):
+        temp_df = self.get_temp(spreadsheet, sheet_name)
+        time_now = datetime.now()
+        start = time_now - timedelta()
+
+
 
 
 
