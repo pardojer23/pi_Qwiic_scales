@@ -43,7 +43,7 @@ class Solenoid:
         time.sleep(open_time)
         self.close_valve()
         current_time = datetime.now().isoformat()
-        return_dict[self.channel()] = current_time
+        return_dict[self.channel] = current_time
 
 class ds18b20:
     def __init__(self):
