@@ -34,6 +34,8 @@ class Solenoid:
     def water_time(self, amount, rate=0.525):
         # rate is ml/ second
         open_time = float(amount) / float(rate)
+        if open_time < 5:
+            open_time = 0
         return open_time
 
     def water(self, open_time, return_dict):
