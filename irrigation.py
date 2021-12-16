@@ -106,7 +106,7 @@ class Experiment:
             water_amount.setdefault(valve, amount)
         return water_amount
 
-    def water_pots(self):
+    def water_pots(self, spreadsheet):
         sm = Solenoid(21)
         solenoid_dict = dict()
         water_amount = self.get_water_amount()
@@ -126,14 +126,30 @@ class Experiment:
         for process in jobs:
             process.join()
         sm.close_valve()
+        self.write_water_data(spreadsheet, water_amount)
 
     def get_water_info(self, water_amount):
         water_amount = water_amount
+        timestamp = [datetime.now().isoformat() for i in range(len(water_amount.keys()))]
+        valve = [i for i in water_amount.keys()]
+        target_amount = [water_amount[i] for i in water_amount.keys()]
+        water_df = pd.DataFrame({"timestamp": timestamp,
+                                 "valve": valve,
+                                 "target_amount": target_amount})
+        return water_df
 
-
-
-
-
+    def write_water_data(self, spreadsheet, water_amount):
+        water_df = self.get_water_info(water_amount=water_amount)
+        scope = ['https://spreadsheets.google.com/feeds',
+                 'https://www.googleapis.com/auth/drive']
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(
+            self.treatment_dict["gdrive_credential"], scope)
+        gc = gspread.authorize(credentials)
+        sheet = gc.open(spreadsheet)
+        values = water_df.values.tolist()
+        sheet.values_append("irrigation_log",
+                            {'valueInputOption': "USER_ENTERED"},
+                            {'values': values})
 
     def write_temp_data(self, spreadsheet, sheet_name):
         temp_guage = ds18b20()
@@ -154,11 +170,19 @@ class Experiment:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--treatment", help="path to treatments json file")
+    parser.add_argument("-w", "--water", help="Water the pots if True", default="false")
     args= parser.parse_args()
     treatment_file = args.treatment
+    water = args.water
+    if water.lower().isin(["true", "t", "1", "on"]):
+        water = True
+    else:
+        water = False
     my_experiment = Experiment(treatment_file)
     my_experiment.write_temp_data(spreadsheet=my_experiment.treatment_dict["spreadsheet"],
                                   sheet_name="temperature_log")
+    if water is True:
+        my_experiment.water_pots(spreadsheet=my_experiment.treatment_dict["spreadsheet"])
 if __name__ == "__main__":
     main()
 
