@@ -83,9 +83,12 @@ class Experiment:
         water_log["timestamp"] = pd.to_datetime(water_log["timestamp"])
         weight_df = self.read_gs_data(self.treatment_dict["spreadsheet"],
                                       self.treatment_dict["sheet_name"])
-        last_watering = water_log.loc[max(water_log.index), "timestamp"]
         weight_df["datetime"] = [pd.to_datetime(i) for i in weight_df["Timestamp"]]
-        recent_weight = weight_df.loc[weight_df["datetime"] > last_watering]
+        if len(water_log.index) > 0:
+            last_watering = water_log.loc[max(water_log.index), "timestamp"]
+            recent_weight = weight_df.loc[weight_df["datetime"] > last_watering]
+        else:
+            recent_weight = weight_df
         water_lost = dict()
         for group in recent_weight.groupby(["Multiplexer", "Scale"]):
             prev_weight = group[1].loc[min(group[1].index), "Weight"]
