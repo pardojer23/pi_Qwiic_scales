@@ -10,8 +10,8 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import argparse
-
-
+from statistics import mean
+import multiprocessing
 
 # Set GPIO pins to use BCM pin numbers
 GPIO.setmode(GPIO.BCM)
@@ -31,9 +31,17 @@ class Solenoid:
     def close_valve(self):
         GPIO.output(self.channel, GPIO.LOW)
 
-    def water_time(self, amount, rate=0.6666):
+    def water_time(self, amount, rate=0.525):
+        # rate is ml/ second
         open_time = float(amount) / float(rate)
         return open_time
+
+    def water(self, open_time):
+        self.open_valve()
+        time.sleep(open_time)
+        self.close_valve()
+        current_time = datetime.now().isoformat()
+        return current_time
 
 class ds18b20:
     def __init__(self):
@@ -70,11 +78,59 @@ class Experiment:
         gs_df = pd.DataFrame(sheet.get_all_records())
         return gs_df
 
-    def get_water_amount(self):
+    def get_water_lost(self):
         water_log = self.read_gs_data(self.treatment_dict["spreadsheet"], "irrigation_log")
         water_log["timestamp"] = pd.to_datetime(water_log["timestamp"])
         weight_df = self.read_gs_data(self.treatment_dict["spreadsheet"],
                                       self.treatment_dict["sheet_name"])
+        last_watering = water_log.loc[max(water_log.index), "timestamp"]
+        weight_df["datetime"] = [pd.to_datetime(i) for i in weight_df["Timestamp"]]
+        recent_weight = weight_df.loc[weight_df["datetime"] > last_watering]
+        water_lost = dict()
+        for group in recent_weight.groupby(["Multiplexer", "Scale"]):
+            prev_weight = group[1].loc[min(group[1].index), "Weight"]
+            cur_weight = group[1].loc[max(group[1].index), "Weight"]
+            diff = cur_weight - prev_weight
+            water_lost.setdefault(group[0][0], []).append(diff)
+        return water_lost
+
+    def get_water_amount(self):
+        water_lost = self.get_water_lost()
+        water_amount = dict()
+        for valve in water_lost.keys():
+            avg_loss = mean(water_lost[valve])
+            amount = self.treatment_dict["valves"][valve]["amount"]*avg_loss
+            water_amount.setdefault(valve, amount)
+        return water_amount
+
+    def water_pots(self):
+        sm = Solenoid(21)
+        solenoid_dict = dict()
+        water_amount = self.get_water_amount()
+        sm.open_valve()
+        for valve in water_amount:
+            solenoid_dict.setdefault(valve, Solenoid(self.treatment_dict["valves"][valve]["valve_pin"]))
+
+        manager = multiprocessing.Manager()
+        return_dict = manager.dict()
+        jobs = []
+        for valve in solenoid_dict.keys():
+            p = multiprocessing.Process(target=solenoid_dict[valve].water,
+                                        args=(solenoid_dict[valve].water_time(
+                                                    amount=water_amount[valve]), return_dict))
+            jobs.append(p)
+            p.start()
+        for process in jobs:
+            process.join()
+        sm.close_valve()
+
+    def get_water_info(self, water_amount):
+        water_amount = water_amount
+
+
+
+
+
 
     def write_temp_data(self, spreadsheet, sheet_name):
         temp_guage = ds18b20()
