@@ -174,7 +174,7 @@ def main():
     args= parser.parse_args()
     treatment_file = args.treatment
     water = args.water
-    if water.lower().isin(["true", "t", "1", "on"]):
+    if water.lower() in {"true", "t", "1", "on"}:
         water = True
     else:
         water = False
