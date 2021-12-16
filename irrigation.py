@@ -182,6 +182,7 @@ def main():
     my_experiment.write_temp_data(spreadsheet=my_experiment.treatment_dict["spreadsheet"],
                                   sheet_name="temperature_log")
     if water is True:
+        print("watering at {0".format(datetime.now().isoformat()))
         my_experiment.water_pots(spreadsheet=my_experiment.treatment_dict["spreadsheet"])
 if __name__ == "__main__":
     main()
