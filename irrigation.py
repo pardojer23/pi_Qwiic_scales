@@ -102,7 +102,8 @@ class Experiment:
         water_amount = dict()
         for valve in water_lost.keys():
             avg_loss = mean(water_lost[valve])
-            amount = self.treatment_dict["valves"][str(valve)]["amount"]*avg_loss
+            amount = float(self.treatment_dict["valves"][str(valve)]["amount"])*avg_loss
+            print(amount)
             water_amount.setdefault(valve, amount)
         return water_amount
 
