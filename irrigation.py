@@ -36,12 +36,12 @@ class Solenoid:
         open_time = float(amount) / float(rate)
         return open_time
 
-    def water(self, open_time):
+    def water(self, open_time, return_dict):
         self.open_valve()
         time.sleep(open_time)
         self.close_valve()
         current_time = datetime.now().isoformat()
-        return current_time
+        return_dict[self.channel()] = current_time
 
 class ds18b20:
     def __init__(self):
