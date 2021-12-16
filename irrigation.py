@@ -113,7 +113,7 @@ class Experiment:
         water_amount = self.get_water_amount()
         sm.open_valve()
         for valve in water_amount:
-            solenoid_dict.setdefault(valve, Solenoid(self.treatment_dict["valves"][valve]["valve_pin"]))
+            solenoid_dict.setdefault(valve, Solenoid(self.treatment_dict["valves"][str(valve)]["valve_pin"]))
 
         manager = multiprocessing.Manager()
         return_dict = manager.dict()
