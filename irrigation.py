@@ -93,9 +93,9 @@ class Experiment:
             recent_weight = weight_df
         water_lost = dict()
         for group in recent_weight.groupby(["Multiplexer", "Scale"]):
-            prev_weight = group[1].loc[min(group[1].index), "Weight"]
-            cur_weight = group[1].loc[max(group[1].index), "Weight"]
-            diff = cur_weight - prev_weight
+            prev_weight = (group[1].loc[min(group[1].index), "Weight"]) * 1000
+            cur_weight = (group[1].loc[max(group[1].index), "Weight"]) * 1000
+            diff = prev_weight - cur_weight
             water_lost.setdefault(group[0][0], []).append(diff)
         return water_lost
 
