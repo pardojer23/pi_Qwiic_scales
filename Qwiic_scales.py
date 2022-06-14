@@ -128,7 +128,7 @@ class Experiment:
 
         for i in self.treatment_dict["valves"].keys():
             self.mux_dict.setdefault(i, MuxBoard(self.treatment_dict["valves"][i]["mux_address"]))
-        self.last_temp = self.get_temp(self.treatment_dict["spreadsheet"], "temperature_log")
+        self.last_temp = self.get_last_temp(self.treatment_dict["spreadsheet"], "temperature_log")
 
     def get_scales_dict(self, scales):
         scales_dict = dict()
